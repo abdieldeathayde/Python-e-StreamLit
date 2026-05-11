@@ -1,33 +1,61 @@
 import streamlit as st
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
 
-st.write("# Chatbot com IA")
+# carregar .env
+load_dotenv()
 
-if not "lista_mensagens" in st.session_state:
+# configurar Cliente Groq
+# Certifique-se de ter a GROQ_API_KEY no seu arquivo .env
+client = OpenAI(
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1"
+)
+
+# título
+st.title("Chat com Groq (Llama 3)")
+
+# memória do chat
+if "lista_mensagens" not in st.session_state:
     st.session_state["lista_mensagens"] = []
-#st.session_state
 
+# exibir histórico
+for mensagem in st.session_state["lista_mensagens"]:
+    st.chat_message(mensagem["role"]).write(mensagem["content"])
 
+# input usuário
+mensagem_usuario = st.chat_input("Digite sua mensagem")
 
+if mensagem_usuario:
+    # mostrar mensagem usuário
+    st.chat_message("user").write(mensagem_usuario)
 
-texto_usuario = st.chat_input("Digite sua mensagem aqui...")
+    # salvar histórico (formato compatível com Groq/OpenAI)
+    st.session_state["lista_mensagens"].append({
+        "role": "user", 
+        "content": mensagem_usuario
+    })
 
-for mensagen in st.session_state["lista_mensagens"]:
-    role = mensagen["role"]
-    content = mensagen["content"]
-    if mensagen["role"] == "user":
-        st.chat_message("user").write(mensagen["content"])
-    else:
-        st.chat_message("assistant").write(mensagen["content"])
+    try:
+        # Gerar resposta
+        # Diferente do seu código anterior, não precisamos criar a string 'contexto' manualmente.
+        # Passamos a lista de mensagens inteira para a API manter o contexto.
+        chat_completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile", # Modelo potente e gratuito (checar modelos no console da Groq)
+            messages=st.session_state["lista_mensagens"],
+        )
 
-if texto_usuario:
-    st.chat_message("user").write(texto_usuario)
-    mensagem_usuario = {"role": "user", "content": texto_usuario}
-    st.session_state["lista_mensagens"].append(mensagem_usuario)
+        resposta_ia = chat_completion.choices[0].message.content
 
-    resposta_ia = "Você perguntou: " + texto_usuario
+        # mostrar resposta
+        st.chat_message("assistant").write(resposta_ia)
 
-    st.chat_message("assistant").write(resposta_ia)
-    mensagem_ia = {"role": "assistant", "content": resposta_ia}
-    st.session_state["lista_mensagens"].append(mensagem_ia)
+        # salvar resposta no histórico
+        st.session_state["lista_mensagens"].append({
+            "role": "assistant", 
+            "content": resposta_ia
+        })
 
-print(st.session_state["lista_mensagens"])
+    except Exception as erro:
+        st.error(f"Erro na Groq: {erro}")
