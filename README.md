@@ -80,6 +80,8 @@ Durante o desenvolvimento deste projeto foram praticados conceitos como:
 
 Adicione prints ou GIFs do sistema na pasta:
 
+![Demo do Sistema](./assets/demo-projeto.webm)
+
 ```bash
 /assets/demo.png
 ```
