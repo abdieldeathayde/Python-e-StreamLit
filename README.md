@@ -80,7 +80,9 @@ Durante o desenvolvimento deste projeto foram praticados conceitos como:
 
 Adicione prints ou GIFs do sistema na pasta:
 
-<video src="./assets/demo-projeto.webm" controls width="800"></video>
+
+[![Assista ao vídeo](![alt text](image.png))](https://youtu.be/8BQlm87TuV4)
+
 
 ```bash
 /assets/demo.png
